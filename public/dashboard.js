@@ -184,6 +184,13 @@ function updateDomainsList(domainList, mode = 'blacklist') {
     const container = document.getElementById('domains-list');
     if (!container) return;
     
+    console.log('Domain mode:', domainMode, 'Domains:', domains);
+    
+    if (domains.length === 0) {
+        container.innerHTML = '<span style="color: var(--text-secondary); font-size: 10px;">No domains configured</span>';
+        return;
+    }
+    
     container.innerHTML = domains.map(d => {
         // Color based on mode
         let bgColor, textColor, borderColor;
@@ -229,7 +236,9 @@ async function removeDomain(domain) {
 
 async function saveDomainMode() {
     const mode = document.getElementById('domain-mode').value;
+    console.log('Saving domain mode:', mode);
     await apiPost('/api/limits/domains', { mode });
+    await loadLimits(); // Reload to update colors
 }
 
 // Geography Management
