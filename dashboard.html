@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaymentControl Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0f1419; --bg-secondary: #1a1f2e; --bg-tertiary: #252b3d;
+            --border-color: #2a3142; --text-primary: #e6e6e6; --text-secondary: #9ca3af;
+            --text-muted: #6b7280; --accent-green: #22c55e; --accent-red: #dc2626;
+            --button-bg: #ffffff; --button-text: #0f1419;
+        }
+        
+        body.light-theme {
+            --bg-primary: #f5f5f5; --bg-secondary: #ffffff; --bg-tertiary: #e8e8e8;
+            --border-color: #d1d5db; --text-primary: #1a1a1a; --text-secondary: #4b5563;
+            --button-bg: #1a1a1a; --button-text: #ffffff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary); color: var(--text-primary); min-height: 100vh;
+        }
+        
+        .header {
+            background: #0a0d12; padding: 4px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            min-height: 40px;
+        }
+
+        .header-logo {
+            height: 87px;
+            width: auto;
+            margin-left: auto;
+            margin-right: 16px;
+        }
+        
+        .emergency-btn {
+            background: #dc2626; color: white; border: none; padding: 6px 12px;
+            border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;
+        }
+        
+        .theme-toggle {
+            background: var(--bg-tertiary); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 5px 10px; border-radius: 5px;
+            cursor: pointer; font-size: 12px;
+        }
+        
+        .container { display: flex; min-height: calc(100vh - 50px); }
+        
+        .sidebar {
+            width: 180px; background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color); padding: 10px 0;
+        }
+        
+        .nav-header {
+            padding: 5px 14px; font-size: 8px; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase;
+        }
+        
+        .nav-item {
+            padding: 7px 14px; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; font-size: 11px; color: var(--text-secondary);
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: var(--bg-tertiary); color: var(--text-primary);
+        }
+        
+        .nav-item.active { border-left: 2px solid var(--accent-green); }
+        
+        .main { flex: 1; padding: 16px; overflow-y: auto; }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        /* Provider Selection */
+        .provider-selection {
+            display: flex; gap: 12px; margin-bottom: 16px;
+        }
+        
+        .provider-btn {
+            flex: 1; padding: 12px; background: var(--bg-secondary);
+            border: 2px solid var(--border-color); border-radius: 8px;
+            cursor: pointer; text-align: center;
+        }
+        
+        .provider-btn.active {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .provider-btn .icon { font-size: 24px; margin-bottom: 6px; }
+        .provider-btn .name { font-size: 12px; font-weight: 600; }
+        
+        /* API Section */
+        .api-section-card {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 14px; margin-bottom: 14px;
+        }
+        
+        .api-section-title { font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+        
+        .api-input-row { display: flex; gap: 8px; }
+        
+        .api-input {
+            flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 7px 10px; border-radius: 5px; font-size: 11px;
+        }
+        
+        .btn {
+            background: var(--button-bg); color: var(--button-text); border: none;
+            padding: 7px 14px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;
+        }
+        
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 8px; margin-bottom: 14px;
+        }
+        
+        .section-header {
+            padding: 12px; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 8px;
+        }
+        
+        .section-icon {
+            width: 28px; height: 28px; border-radius: 5px;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        }
+        
+        .section-icon.yellow { background: rgba(234, 179, 8, 0.2); }
+        .section-icon.purple { background: rgba(168, 85, 247, 0.2); }
+        .section-icon.green { background: rgba(34, 197, 94, 0.2); }
+        .section-icon.blue { background: rgba(59, 130, 246, 0.2); }
+        
+        .section-title { flex: 1; }
+        .section-title h3 { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+        .section-title p { font-size: 10px; color: var(--text-muted); }
+        
+        .badge {
+            background: var(--accent-green); color: white; padding: 2px 6px;
+            border-radius: 3px; font-size: 8px; font-weight: 600;
+        }
+        
+        .toggle-card-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        
+        .toggle-card-btn:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .toggle-card-btn .arrow {
+            transition: transform 0.2s;
+        }
+        
+        .toggle-card-btn.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+        
+        .section-body {
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .section-body.collapsed {
+            display: none;
+        }
+        
+        .section-body { padding: 12px; }
+        
+        .form-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px;
+        }
+        
+        .form-group { display: flex; flex-direction: column; gap: 3px; }
+        .form-group label { font-size: 9px; color: var(--text-secondary); }
+        .form-group input, .form-group select {
+            background: var(--bg-primary); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;
+        }
+        
+        .save-section-btn {
+            background: var(--button-bg); color: var(--button-text); border: none;
+            padding: 7px 14px; border-radius: 5px; font-size: 11px; font-weight: 600;
+            float: right; margin-top: 8px;
+        }
+        
+        .clearfix::after { content: ""; clear: both; display: table; }
+        
+        /* Logs */
+        .logs-container {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 8px; overflow: hidden;
+        }
+        
+        .logs-header {
+            display: flex; gap: 10px; padding: 10px;
+            border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary);
+        }
+        
+        .log-filter {
+            padding: 5px 10px; border-radius: 4px; font-size: 10px; cursor: pointer;
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .log-filter.active { background: var(--accent-green); color: white; }
+        
+        .log-entry {
+            padding: 10px 12px; border-bottom: 1px solid var(--border-color);
+            font-size: 11px; display: flex; gap: 10px;
+        }
+        
+        .log-time { color: var(--text-muted); font-size: 9px; min-width: 60px; }
+        
+        .log-level {
+            padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: 600;
+            min-width: 50px; text-align: center;
+        }
+        
+        .log-level.success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .log-level.info { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .log-level.warning { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .log-level.error { background: rgba(220, 38, 38, 0.2); color: #dc2626; }
+        
+        .log-message { flex: 1; }
+        
+        /* Transactions */
+        .transactions-table {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 8px; overflow: hidden;
+        }
+        
+        .table-header {
+            display: grid; grid-template-columns: 100px 1fr 100px 80px 80px;
+            gap: 10px; padding: 10px 12px; background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 10px; font-weight: 600; color: var(--text-secondary);
+        }
+        
+        .table-row {
+            display: grid; grid-template-columns: 100px 1fr 100px 80px 80px;
+            gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border-color);
+            font-size: 11px; align-items: center;
+        }
+        
+        .tx-date { color: var(--text-muted); font-size: 10px; }
+        .tx-merchant { color: var(--text-primary); font-weight: 500; }
+        .tx-category { font-size: 9px; }
+        .tx-amount { font-weight: 600; }
+        
+        .tx-status {
+            padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; text-align: center;
+        }
+        
+        .tx-status.completed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .tx-status.pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        
+        /* Monitoring */
+        .monitoring-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;
+        }
+        
+        .monitor-card {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 14px; text-align: center;
+        }
+        
+        .monitor-icon { font-size: 28px; margin-bottom: 8px; }
+        .monitor-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+        .monitor-label { font-size: 10px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="emergency-btn">🔴 Emergency Stop</button>
+        <img src="logo.png" alt="Logo" class="header-logo">
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-header">Account Centre</div>
+            <div class="nav-item active" onclick="showPage('configuration')">⚙️ Configuration</div>
+            <div class="nav-item" onclick="showPage('monitoring')">📊 Monitoring</div>
+            <div class="nav-item" onclick="showPage('logs')">📋 Logs</div>
+
+            <div class="nav-header">Analytics</div>
+            <div class="nav-item" onclick="showPage('transactions')">💳 Transactions</div>
+
+            <div class="nav-header">Theme</div>
+            <div class="nav-item" onclick="toggleTheme()">☀️/🌙 Toggle</div>
+        </div>
+        
+        <div class="main">
+            <!-- Configuration Page -->
+            <div id="configuration" class="page active">
+                <div class="api-section-card">
+                    <div class="api-section-title">🏦 Select Payment Provider</div>
+                    <div class="provider-selection">
+                        <div class="provider-btn active" onclick="selectProvider('wise', this)">
+                            <div class="icon">💚</div>
+                            <div class="name">Wise</div>
+                        </div>
+                        <div class="provider-btn" onclick="selectProvider('bunq', this)">
+                            <div class="icon">💜</div>
+                            <div class="name">Bunq</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="api-section-card">
+                    <div class="api-section-title" id="api-title">🔑 API Configuration</div>
+                    <div class="api-input-row">
+                        <input type="text" class="api-input" id="api-key-input" placeholder="Enter API Key">
+                        <button class="btn">Save</button>
+                    </div>
+                </div>
+
+                <!-- PSD2 Notice -->
+                <div class="api-section-card" style="background: rgba(59, 130, 246, 0.1); border-color: #3b82f6;">
+                    <div style="font-size: 11px; color: var(--text-secondary);">
+                        🇪🇺 users should install Wise/Bunq mobile app for confirming transactions (under PSD2 law)
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon yellow">💵</div>
+                        <div class="section-title">
+                            <h3>Account Limits</h3>
+                            <p>Set transaction limits for your account</p>
+                        </div>
+                        <button class="toggle-card-btn" onclick="toggleCard(this)">
+                            
+                            <span class="arrow">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>Per Transaction</label><input type="text" value="5.0"></div>
+                            <div class="form-group"><label>Per Hour</label><input type="text" value="50.0"></div>
+                            <div class="form-group"><label>Per Day</label><input type="text" value="500.0"></div>
+                            <div class="form-group"><label>Per Week</label><input type="text" value="2,500.0"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Per Month</label><input type="text" value="10,000.0"></div>
+                            <div class="form-group"><label>Per Year</label><input type="text" value="100,000.0"></div>
+                            <div class="form-group"><label>Currency</label><select><option>USD</option><option>EUR</option></select></div>
+                            <div class="form-group"><label>Max Tx/Hour</label><input type="text" value="20"></div>
+                        </div>
+                        <button class="save-section-btn">Save Account Limits</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                
+                <!-- Cumulative Budgets -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon purple">📊</div>
+                        <div class="section-title">
+                            <h3>Cumulative Budgets</h3>
+                            <p>Manage rolling budgets with automatic reset</p>
+                        </div>
+                        <button class="toggle-card-btn" onclick="toggleCard(this)">
+                            
+                            <span class="arrow">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-body">
+                        <div class="form-row">
+                            <div class="form-group"><label>Budget Name</label><input type="text" value="Monthly Budget"></div>
+                            <div class="form-group"><label>Amount</label><input type="text" value="1000"></div>
+                            <div class="form-group"><label>Period</label><select><option>Monthly</option><option>Weekly</option><option>Daily</option></select></div>
+                            <div class="form-group"><label>Currency</label><select><option>USD</option><option>EUR</option></select></div>
+                        </div>
+                        <button class="save-section-btn">Save Budgets</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                
+                <!-- Domain Controls -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon orange">🌐</div>
+                        <div class="section-title">
+                            <h3>Domain Controls</h3>
+                            <p>Whitelist or blacklist merchant domains</p>
+                        </div>
+                        <button class="toggle-card-btn" onclick="toggleCard(this)">
+                            
+                            <span class="arrow">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-body">
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Allowed Domains</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., amazon.com">
+                                <button class="btn" style="padding: 5px 10px; font-size: 10px;">+ Add</button>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">amazon.com ✕</span>
+                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">google.com ✕</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Blocked Domains</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., gambling.com">
+                                <button class="btn" style="padding: 5px 10px; font-size: 10px; background: #dc2626;">+ Add</button>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                <span style="background: rgba(220, 38, 38, 0.2); color: #ef4444; padding: 3px 6px; border-radius: 3px; font-size: 9px;">gambling.com ✕</span>
+                            </div>
+                        </div>
+                        <button class="save-section-btn">Save Domain Controls</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                
+                <!-- Time Window Controls -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon green">🕐</div>
+                        <div class="section-title">
+                            <h3>Time Window Controls</h3>
+                            <p>Restrict transactions by time and day</p>
+                        </div>
+                        <button class="toggle-card-btn" onclick="toggleCard(this)">
+                            
+                            <span class="arrow">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-body">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                            <div style="width: 36px; height: 18px; background: var(--accent-green); border-radius: 9px; position: relative; cursor: pointer;">
+                                <div style="position: absolute; width: 14px; height: 14px; background: white; border-radius: 50%; top: 2px; right: 2px;"></div>
+                            </div>
+                            <span style="font-size: 11px;">Enable time window enforcement</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Start Time</label><input type="time" value="08:00"></div>
+                            <div class="form-group"><label>End Time</label><input type="time" value="22:00"></div>
+                            <div class="form-group"><label>Timezone</label><select><option>Europe/Bucharest</option><option>UTC</option></select></div>
+                            <div class="form-group"><label>Blocked Days</label><select><option>None</option><option>Weekends</option></select></div>
+                        </div>
+                        <button class="save-section-btn">Save Time Policy</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                
+                <!-- Geography Controls -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon red">📍</div>
+                        <div class="section-title">
+                            <h3>Geography Controls</h3>
+                            <p>Allow or block transactions by country</p>
+                        </div>
+                        <button class="toggle-card-btn" onclick="toggleCard(this)">
+                            
+                            <span class="arrow">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-body">
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Allowed Countries</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., Romania">
+                                <button class="btn" style="padding: 5px 10px; font-size: 10px;">+ Add</button>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">Romania ✕</span>
+                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">Germany ✕</span>
+                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">UK ✕</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Blocked Countries</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., North Korea">
+                                <button class="btn" style="padding: 5px 10px; font-size: 10px; background: #dc2626;">+ Add</button>
+                            </div>
+                        </div>
+                        <button class="save-section-btn">Save Geography</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                
+                <!-- Category Controls -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon purple">🏷️</div>
+                        <div class="section-title">
+                            <h3>Category Controls</h3>
+                            <p>Block or allow spending categories</p>
+                        </div>
+                        <button class="toggle-card-btn" onclick="toggleCard(this)">
+                            
+                            <span class="arrow">▼</span>
+                        </button>
+                    </div>
+                    <div class="section-body">
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">Allowed Categories</div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Groceries</div>
+                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Transport</div>
+                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Utilities</div>
+                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Shopping</div>
+                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Dining</div>
+                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Healthcare</div>
+                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Education</div>
+                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Entertainment</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">Blocked Categories</div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Gambling</div>
+                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Crypto</div>
+                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Adult</div>
+                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Drugs</div>
+                            </div>
+                        </div>
+                        <button class="save-section-btn">Save Categories</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Monitoring Page -->
+            <div id="monitoring" class="page">
+                <div class="monitoring-grid">
+                    <div class="monitor-card">
+                        <div class="monitor-icon">💰</div>
+                        <div class="monitor-value">$12,450</div>
+                        <div class="monitor-label">Total Balance</div>
+                    </div>
+                    <div class="monitor-card">
+                        <div class="monitor-icon">📈</div>
+                        <div class="monitor-value">$1,230</div>
+                        <div class="monitor-label">Spent Today</div>
+                    </div>
+                    <div class="monitor-card">
+                        <div class="monitor-icon">🔄</div>
+                        <div class="monitor-value">47</div>
+                        <div class="monitor-label">Transactions</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs Page -->
+            <div id="logs" class="page">
+                <div class="logs-container">
+                    <div class="logs-header">
+                        <div class="log-filter active">All</div>
+                        <div class="log-filter">API</div>
+                        <div class="log-filter">Connection</div>
+                        <div class="log-filter">Transaction</div>
+                        <div class="log-filter">Errors</div>
+                    </div>
+                    <div class="logs-list">
+                        <div class="log-entry">
+                            <span class="log-time">15:23:45</span>
+                            <span class="log-level success">SUCCESS</span>
+                            <span class="log-message">Connected to API</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">15:20:33</span>
+                            <span class="log-level success">SUCCESS</span>
+                            <span class="log-message">Transaction: $250.00 to Amazon</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">15:18:12</span>
+                            <span class="log-level warning">WARNING</span>
+                            <span class="log-message">Rate limit approaching</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="log-time">15:10:22</span>
+                            <span class="log-level error">ERROR</span>
+                            <span class="log-message">Connection timeout</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Transactions Page -->
+            <div id="transactions" class="page">
+                <div class="transactions-table">
+                    <div class="table-header">
+                        <div>Date</div>
+                        <div>Merchant</div>
+                        <div>Category</div>
+                        <div>Amount</div>
+                        <div>Status</div>
+                    </div>
+                    <div class="table-row">
+                        <div class="tx-date">Mar 9, 15:20</div>
+                        <div class="tx-merchant">Amazon</div>
+                        <div class="tx-category">Shopping</div>
+                        <div class="tx-amount">$250.00</div>
+                        <div class="tx-status completed">Completed</div>
+                    </div>
+                    <div class="table-row">
+                        <div class="tx-date">Mar 9, 14:15</div>
+                        <div class="tx-merchant">Uber</div>
+                        <div class="tx-category">Transport</div>
+                        <div class="tx-amount">$24.50</div>
+                        <div class="tx-status completed">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+        }
+        
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function selectProvider(provider, btn) {
+            document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const title = document.getElementById('api-title');
+            const input = document.getElementById('api-key-input');
+            if (provider === 'wise') {
+                title.textContent = '🔑 Wise API Configuration';
+                input.placeholder = 'Enter Wise API Key';
+            } else {
+                title.textContent = '🔑 Bunq API Configuration';
+                input.placeholder = 'Enter Bunq API Key';
+            }
+        }
+        
+        function toggleCard(btn) {
+            btn.classList.toggle('collapsed');
+            const body = btn.closest('.section-card').querySelector('.section-body');
+            body.classList.toggle('collapsed');
+            const arrow = btn.querySelector('.arrow');
+            arrow.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+        }
+    </script>
+</body>
+</html>
