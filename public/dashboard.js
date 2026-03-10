@@ -86,7 +86,7 @@ async function loadLimits() {
         // Update Domain Controls
         if (data.domainControls) {
             document.getElementById('domain-mode').value = data.domainControls.mode || 'blacklist';
-            updateDomainsList(data.domainControls.domains || []);
+            updateDomainsList(data.domainControls.domains || [], data.domainControls.mode || 'blacklist');
         }
         
         // Update Geography Controls
@@ -176,18 +176,35 @@ async function removeBudget(index) {
 
 // Domain Management
 let domains = [];
+let domainMode = 'blacklist';
 
-function updateDomainsList(domainList) {
+function updateDomainsList(domainList, mode = 'blacklist') {
     domains = domainList;
+    domainMode = mode;
     const container = document.getElementById('domains-list');
     if (!container) return;
     
-    container.innerHTML = domains.map(d => `
-        <span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 3px 8px; border-radius: 3px; font-size: 10px; display: inline-flex; align-items: center; gap: 5px; margin: 2px;">
+    container.innerHTML = domains.map(d => {
+        // Color based on mode
+        let bgColor, textColor, borderColor;
+        if (domainMode === 'whitelist') {
+            // Whitelist mode: domains in list are ALLOWED (green)
+            bgColor = 'rgba(34, 197, 94, 0.2)';
+            textColor = '#22c55e';
+            borderColor = '#22c55e';
+        } else {
+            // Blacklist mode: domains in list are BLOCKED (red)
+            bgColor = 'rgba(220, 38, 38, 0.2)';
+            textColor = '#ef4444';
+            borderColor = '#dc2626';
+        }
+        
+        return `
+        <span style="background: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; padding: 3px 8px; border-radius: 3px; font-size: 10px; display: inline-flex; align-items: center; gap: 5px; margin: 2px;">
             ${d}
-            <button onclick="removeDomain('${d}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; padding: 0;">×</button>
+            <button onclick="removeDomain('${d}')" style="background: none; border: none; color: ${textColor}; cursor: pointer; font-size: 12px; padding: 0;">×</button>
         </span>
-    `).join('');
+    `}).join('');
 }
 
 async function addDomain() {
