@@ -290,7 +290,7 @@
 </head>
 <body>
     <div class="header">
-        <button class="emergency-btn">🔴 Emergency Stop</button>
+        <button class="emergency-btn" id="emergency-btn">🔴 Emergency Stop</button>
         <img src="logo.png" alt="Logo" class="header-logo">
     </div>
 
@@ -354,18 +354,16 @@
                     </div>
                     <div class="section-body">
                         <div class="form-row">
-                            <div class="form-group"><label>Per Transaction</label><input type="text" value="5.0"></div>
-                            <div class="form-group"><label>Per Hour</label><input type="text" value="50.0"></div>
-                            <div class="form-group"><label>Per Day</label><input type="text" value="500.0"></div>
-                            <div class="form-group"><label>Per Week</label><input type="text" value="2,500.0"></div>
+                            <div class="form-group"><label>Per Transaction</label><input type="number" id="per-transaction-limit" value="10000"></div>
+                            <div class="form-group"><label>Per Hour</label><input type="number" id="hourly-limit" value="10"></div>
+                            <div class="form-group"><label>Per Day</label><input type="number" id="daily-limit" value="50000"></div>
+                            <div class="form-group"><label>Per Week</label><input type="number" id="weekly-limit" value="200000"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label>Per Month</label><input type="text" value="10,000.0"></div>
-                            <div class="form-group"><label>Per Year</label><input type="text" value="100,000.0"></div>
-                            <div class="form-group"><label>Currency</label><select><option>USD</option><option>EUR</option></select></div>
-                            <div class="form-group"><label>Max Tx/Hour</label><input type="text" value="20"></div>
+                            <div class="form-group"><label>Per Month</label><input type="number" id="monthly-limit" value="500000"></div>
+                            <div class="form-group"><label>Currency</label><select id="limit-currency"><option>USD</option><option>EUR</option></select></div>
                         </div>
-                        <button class="save-section-btn">Save Account Limits</button>
+                        <button class="save-section-btn" onclick="saveAccountLimits()">Save Account Limits</button>
                         <div class="clearfix"></div>
                     </div>
                 </div>
@@ -450,18 +448,15 @@
                     </div>
                     <div class="section-body">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                            <div style="width: 36px; height: 18px; background: var(--accent-green); border-radius: 9px; position: relative; cursor: pointer;">
-                                <div style="position: absolute; width: 14px; height: 14px; background: white; border-radius: 50%; top: 2px; right: 2px;"></div>
-                            </div>
+                            <input type="checkbox" id="time-window-enabled" style="width: 18px; height: 18px; cursor: pointer;">
                             <span style="font-size: 11px;">Enable time window enforcement</span>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label>Start Time</label><input type="time" value="08:00"></div>
-                            <div class="form-group"><label>End Time</label><input type="time" value="22:00"></div>
-                            <div class="form-group"><label>Timezone</label><select><option>Europe/Bucharest</option><option>UTC</option></select></div>
-                            <div class="form-group"><label>Blocked Days</label><select><option>None</option><option>Weekends</option></select></div>
+                            <div class="form-group"><label>Start Time</label><input type="time" id="start-time" value="08:00"></div>
+                            <div class="form-group"><label>End Time</label><input type="time" id="end-time" value="22:00"></div>
+                            <div class="form-group"><label>Timezone</label><select id="timezone"><option>Europe/Bucharest</option><option>UTC</option></select></div>
                         </div>
-                        <button class="save-section-btn">Save Time Policy</button>
+                        <button class="save-section-btn" onclick="saveTimeWindow()">Save Time Policy</button>
                         <div class="clearfix"></div>
                     </div>
                 </div>
@@ -665,5 +660,6 @@
             arrow.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
         }
     </script>
+    <script src="dashboard.js"></script>
 </body>
 </html>

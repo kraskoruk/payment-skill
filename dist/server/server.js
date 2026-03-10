@@ -77,12 +77,107 @@ class PaymentSkillServer {
             config_1.configManager.deactivateEmergencyStop();
             res.json({ success: true, message: 'Emergency stop deactivated' });
         });
-        // Get limits
+        // Get all limits and controls
         this.app.get('/api/limits', (req, res) => {
             res.json({
                 limits: config_1.configManager.getLimits(),
-                timeWindow: config_1.configManager.getTimeWindow()
+                timeWindow: config_1.configManager.getTimeWindow(),
+                cumulativeBudgets: config_1.configManager.getCumulativeBudgets(),
+                domainControls: config_1.configManager.getDomainControls(),
+                geographyControls: config_1.configManager.getGeographyControls(),
+                categoryControls: config_1.configManager.getCategoryControls()
             });
+        });
+        // Update basic limits
+        this.app.post('/api/limits', (req, res) => {
+            const { perTransaction, daily, weekly, monthly, maxTransactionsPerHour } = req.body;
+            config_1.configManager.setLimits({ perTransaction, daily, weekly, monthly, maxTransactionsPerHour });
+            res.json({ success: true, message: 'Limits updated' });
+        });
+        // Cumulative Budgets
+        this.app.get('/api/limits/budgets', (req, res) => {
+            res.json(config_1.configManager.getCumulativeBudgets());
+        });
+        this.app.post('/api/limits/budgets', (req, res) => {
+            config_1.configManager.addCumulativeBudget(req.body);
+            res.json({ success: true, message: 'Budget added' });
+        });
+        this.app.delete('/api/limits/budgets/:index', (req, res) => {
+            config_1.configManager.removeCumulativeBudget(parseInt(req.params.index));
+            res.json({ success: true, message: 'Budget removed' });
+        });
+        // Domain Controls
+        this.app.get('/api/limits/domains', (req, res) => {
+            res.json(config_1.configManager.getDomainControls());
+        });
+        this.app.post('/api/limits/domains', (req, res) => {
+            const { mode, domain } = req.body;
+            if (mode) {
+                const controls = config_1.configManager.getDomainControls();
+                controls.mode = mode;
+                config_1.configManager.setDomainControls(controls);
+            }
+            if (domain) {
+                config_1.configManager.addDomain(domain);
+            }
+            res.json({ success: true, message: 'Domain controls updated' });
+        });
+        this.app.delete('/api/limits/domains/:domain', (req, res) => {
+            config_1.configManager.removeDomain(req.params.domain);
+            res.json({ success: true, message: 'Domain removed' });
+        });
+        // Time Window
+        this.app.get('/api/limits/time-window', (req, res) => {
+            res.json(config_1.configManager.getTimeWindow());
+        });
+        this.app.post('/api/limits/time-window', (req, res) => {
+            config_1.configManager.setTimeWindow(req.body);
+            res.json({ success: true, message: 'Time window updated' });
+        });
+        // Geography Controls
+        this.app.get('/api/limits/geo', (req, res) => {
+            res.json(config_1.configManager.getGeographyControls());
+        });
+        this.app.post('/api/limits/geo', (req, res) => {
+            const { enabled, mode, country } = req.body;
+            const controls = config_1.configManager.getGeographyControls();
+            if (enabled !== undefined)
+                controls.enabled = enabled;
+            if (mode)
+                controls.mode = mode;
+            if (country) {
+                if (!controls.countries.includes(country)) {
+                    controls.countries.push(country);
+                }
+            }
+            config_1.configManager.setGeographyControls(controls);
+            res.json({ success: true, message: 'Geography controls updated' });
+        });
+        this.app.delete('/api/limits/geo/:country', (req, res) => {
+            const controls = config_1.configManager.getGeographyControls();
+            controls.countries = controls.countries.filter((c) => c !== req.params.country);
+            config_1.configManager.setGeographyControls(controls);
+            res.json({ success: true, message: 'Country removed' });
+        });
+        // Category Controls
+        this.app.get('/api/limits/categories', (req, res) => {
+            res.json(config_1.configManager.getCategoryControls());
+        });
+        this.app.post('/api/limits/categories/block', (req, res) => {
+            config_1.configManager.addBlockedCategory(req.body.category);
+            res.json({ success: true, message: 'Category blocked' });
+        });
+        this.app.post('/api/limits/categories/unblock', (req, res) => {
+            config_1.configManager.removeBlockedCategory(req.body.category);
+            res.json({ success: true, message: 'Category unblocked' });
+        });
+        this.app.post('/api/limits/categories/allow', (req, res) => {
+            config_1.configManager.addAllowedCategory(req.body.category);
+            res.json({ success: true, message: 'Category added to allowed list' });
+        });
+        this.app.post('/api/limits/categories/disallow', (req, res) => {
+            config_1.configManager.removeAllowedCategory(req.body.category);
+            res.json({ success: true, message: 'Category removed from allowed list' });
         });
         // Webhook endpoints
         this.app.post('/webhooks/wise', (req, res) => {
