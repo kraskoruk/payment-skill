@@ -96,6 +96,7 @@ export interface TemplateStep {
   async?: boolean;
   confirmation?: ConfirmationConfig;
   nextStep?: NextStepCondition;
+  condition?: string;
 }
 
 export interface ConfirmationConfig {
