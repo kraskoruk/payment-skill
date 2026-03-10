@@ -382,13 +382,18 @@
                         </button>
                     </div>
                     <div class="section-body">
-                        <div class="form-row">
-                            <div class="form-group"><label>Budget Name</label><input type="text" value="Monthly Budget"></div>
-                            <div class="form-group"><label>Amount</label><input type="text" value="1000"></div>
-                            <div class="form-group"><label>Period</label><select><option>Monthly</option><option>Weekly</option><option>Daily</option></select></div>
-                            <div class="form-group"><label>Currency</label><select><option>USD</option><option>EUR</option></select></div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Add New Budget</div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Amount</label><input type="number" id="budget-amount" placeholder="1000"></div>
+                                <div class="form-group"><label>Currency</label><select id="budget-currency"><option>EUR</option><option>USD</option></select></div>
+                                <div class="form-group"><label>Period</label><select id="budget-period"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+                                <div class="form-group"><label>&nbsp;</label><button class="btn" onclick="addBudget()" style="padding: 5px 15px; font-size: 11px;">+ Add Budget</button></div>
+                            </div>
                         </div>
-                        <button class="save-section-btn">Save Budgets</button>
+                        <div id="budgets-list" style="margin-bottom: 15px;">
+                            <!-- Budgets will be loaded here -->
+                        </div>
                         <div class="clearfix"></div>
                     </div>
                 </div>
@@ -408,27 +413,22 @@
                     </div>
                     <div class="section-body">
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Allowed Domains</div>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Control Mode</div>
+                            <select id="domain-mode" style="width: 100%; padding: 6px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; font-size: 11px; margin-bottom: 10px;" onchange="saveDomainMode()">
+                                <option value="blacklist">Blacklist (block specific domains)</option>
+                                <option value="whitelist">Whitelist (only allow specific domains)</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Add Domain</div>
                             <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., amazon.com">
-                                <button class="btn" style="padding: 5px 10px; font-size: 10px;">+ Add</button>
-                            </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">amazon.com ✕</span>
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">google.com ✕</span>
+                                <input type="text" id="new-domain" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., example.com">
+                                <button class="btn" onclick="addDomain()" style="padding: 5px 10px; font-size: 10px;">+ Add</button>
                             </div>
                         </div>
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Blocked Domains</div>
-                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., gambling.com">
-                                <button class="btn" style="padding: 5px 10px; font-size: 10px; background: #dc2626;">+ Add</button>
-                            </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                                <span style="background: rgba(220, 38, 38, 0.2); color: #ef4444; padding: 3px 6px; border-radius: 3px; font-size: 9px;">gambling.com ✕</span>
-                            </div>
+                        <div id="domains-list" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+                            <!-- Domains will be loaded here -->
                         </div>
-                        <button class="save-section-btn">Save Domain Controls</button>
                         <div class="clearfix"></div>
                     </div>
                 </div>
@@ -476,25 +476,26 @@
                     </div>
                     <div class="section-body">
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Allowed Countries</div>
-                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., Romania">
-                                <button class="btn" style="padding: 5px 10px; font-size: 10px;">+ Add</button>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <input type="checkbox" id="geo-enabled" style="width: 18px; height: 18px; cursor: pointer;" onchange="saveGeoSettings()">
+                                <span style="font-size: 11px;">Enable geography controls</span>
                             </div>
-                            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">Romania ✕</span>
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">Germany ✕</span>
-                                <span style="background: rgba(34, 197, 94, 0.2); color: #22c55e; padding: 3px 6px; border-radius: 3px; font-size: 9px;">UK ✕</span>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Mode</div>
+                            <select id="geo-mode" style="width: 100%; padding: 6px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; font-size: 11px; margin-bottom: 10px;" onchange="saveGeoSettings()">
+                                <option value="allow">Allow only these countries</option>
+                                <option value="block">Block these countries</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Add Country (ISO code)</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" id="new-country" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., RO, DE, US">
+                                <button class="btn" onclick="addCountry()" style="padding: 5px 10px; font-size: 10px;">+ Add</button>
                             </div>
                         </div>
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Blocked Countries</div>
-                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                                <input type="text" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., North Korea">
-                                <button class="btn" style="padding: 5px 10px; font-size: 10px; background: #dc2626;">+ Add</button>
-                            </div>
+                        <div id="countries-list" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+                            <!-- Countries will be loaded here -->
                         </div>
-                        <button class="save-section-btn">Save Geography</button>
                         <div class="clearfix"></div>
                     </div>
                 </div>
@@ -514,28 +515,25 @@
                     </div>
                     <div class="section-body">
                         <div style="margin-bottom: 15px;">
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">Allowed Categories</div>
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Groceries</div>
-                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Transport</div>
-                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Utilities</div>
-                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Shopping</div>
-                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Dining</div>
-                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Healthcare</div>
-                                <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #22c55e; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Education</div>
-                                <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Entertainment</div>
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Add Allowed Category</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" id="new-allowed-category" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., shopping">
+                                <button class="btn" onclick="allowCategory()" style="padding: 5px 10px; font-size: 10px;">+ Allow</button>
+                            </div>
+                            <div id="allowed-categories-list" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+                                <!-- Allowed categories will be loaded here -->
                             </div>
                         </div>
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">Blocked Categories</div>
-                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Gambling</div>
-                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Crypto</div>
-                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Adult</div>
-                                <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid #dc2626; color: #ef4444; padding: 7px; border-radius: 4px; font-size: 10px; text-align: center;">Drugs</div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;">Add Blocked Category</div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                                <input type="text" id="new-blocked-category" style="flex: 1; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 8px; border-radius: 4px; font-size: 10px;" placeholder="e.g., gambling">
+                                <button class="btn" onclick="blockCategory()" style="padding: 5px 10px; font-size: 10px; background: #dc2626;">+ Block</button>
+                            </div>
+                            <div id="blocked-categories-list" style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;">
+                                <!-- Blocked categories will be loaded here -->
                             </div>
                         </div>
-                        <button class="save-section-btn">Save Categories</button>
                         <div class="clearfix"></div>
                     </div>
                 </div>
