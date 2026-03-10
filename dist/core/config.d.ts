@@ -35,7 +35,7 @@ export declare class ConfigManager {
     removeCumulativeBudget(index: number): void;
     getDomainControls(): any;
     setDomainControls(controls: any): void;
-    addDomain(domain: string): void;
+    addDomain(domain: string, type?: 'blocked' | 'allowed'): void;
     removeDomain(domain: string): void;
     getGeographyControls(): any;
     setGeographyControls(controls: any): void;

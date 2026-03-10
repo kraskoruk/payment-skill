@@ -181,7 +181,7 @@ function updateDomainsList(domainList) {
     const container = document.getElementById('domains-list');
     if (!container) return;
     
-    console.log('Domains:', domains);
+    console.log('Domains received:', JSON.stringify(domains, null, 2));
     
     if (domains.length === 0) {
         container.innerHTML = '<span style="color: var(--text-secondary); font-size: 10px;">No domains configured</span>';
@@ -213,21 +213,6 @@ function updateDomainsList(domainList) {
             <button onclick="removeDomain('${domainName}')" style="background: none; border: none; color: ${textColor}; cursor: pointer; font-size: 12px; padding: 0;">×</button>
         </span>
     `}).join('');
-}
-
-async function addDomain() {
-    const domain = document.getElementById('new-domain').value.trim();
-    if (!domain) return;
-    
-    const result = await apiPost('/api/limits/domains', { domain });
-    document.getElementById('new-domain').value = '';
-    
-    // Use returned controls to ensure correct mode
-    if (result.controls) {
-        updateDomainsList(result.controls.domains || [], result.controls.mode || 'blacklist');
-    } else {
-        await loadLimits();
-    }
 }
 
 async function removeDomain(domain) {
