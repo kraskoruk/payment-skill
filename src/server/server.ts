@@ -29,6 +29,7 @@ export class PaymentSkillServer {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(express.static(path.join(__dirname, '../../')));
+    this.app.use('/public', express.static(path.join(__dirname, '../../public')));
   }
 
   private setupRoutes(): void {
