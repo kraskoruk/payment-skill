@@ -1,6 +1,6 @@
 {
   "name": "payment-skill",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Self-hosted payment orchestration app for OpenClaw - pay from your bank account to merchants via API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
