@@ -125,17 +125,11 @@ export class PaymentSkillServer {
     });
 
     this.app.post('/api/limits/domains', (req, res) => {
-      const { mode, domain } = req.body;
-      if (mode) {
-        const controls = configManager.getDomainControls();
-        controls.mode = mode;
-        configManager.setDomainControls(controls);
-      }
+      const { domain, type } = req.body;
       if (domain) {
-        configManager.addDomain(domain);
+        configManager.addDomain(domain, type || 'blocked');
       }
-      // Return updated controls so frontend has correct mode
-      res.json({ success: true, message: 'Domain controls updated', controls: configManager.getDomainControls() });
+      res.json({ success: true, message: 'Domain added', controls: configManager.getDomainControls() });
     });
 
     this.app.delete('/api/limits/domains/:domain', (req, res) => {

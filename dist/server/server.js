@@ -121,11 +121,12 @@ class PaymentSkillServer {
             if (domain) {
                 config_1.configManager.addDomain(domain);
             }
-            res.json({ success: true, message: 'Domain controls updated' });
+            // Return updated controls so frontend has correct mode
+            res.json({ success: true, message: 'Domain controls updated', controls: config_1.configManager.getDomainControls() });
         });
         this.app.delete('/api/limits/domains/:domain', (req, res) => {
             config_1.configManager.removeDomain(req.params.domain);
-            res.json({ success: true, message: 'Domain removed' });
+            res.json({ success: true, message: 'Domain removed', controls: config_1.configManager.getDomainControls() });
         });
         // Time Window
         this.app.get('/api/limits/time-window', (req, res) => {

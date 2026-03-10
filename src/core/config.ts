@@ -218,12 +218,17 @@ export class ConfigManager {
     this.saveConfig();
   }
 
-  addDomain(domain: string): void {
+  addDomain(domain: string, type: 'blocked' | 'allowed' = 'blocked'): void {
     if (!this.config.advancedLimits) {
       this.config.advancedLimits = this.getDefaultConfig().advancedLimits;
     }
-    if (!this.config.advancedLimits.domainControls.domains.includes(domain)) {
-      this.config.advancedLimits.domainControls.domains.push(domain);
+    // Check if domain already exists
+    const existingIndex = this.config.advancedLimits.domainControls.domains.findIndex(
+      (d: any) => typeof d === 'string' ? d === domain : d.domain === domain
+    );
+    if (existingIndex === -1) {
+      // Add new domain with type
+      this.config.advancedLimits.domainControls.domains.push({ domain, type });
       this.saveConfig();
     }
   }
@@ -231,7 +236,10 @@ export class ConfigManager {
   removeDomain(domain: string): void {
     if (this.config.advancedLimits?.domainControls?.domains) {
       this.config.advancedLimits.domainControls.domains = 
-        this.config.advancedLimits.domainControls.domains.filter((d: string) => d !== domain);
+        this.config.advancedLimits.domainControls.domains.filter((d: any) => {
+          const dName = typeof d === 'string' ? d : d.domain;
+          return dName !== domain;
+        });
       this.saveConfig();
     }
   }
