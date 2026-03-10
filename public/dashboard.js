@@ -236,10 +236,13 @@ async function addBlockedDomain() {
     const domain = document.getElementById('new-blocked-domain').value.trim();
     if (!domain) return;
     
+    console.log('Adding blocked domain:', domain);
     const result = await apiPost('/api/limits/domains', { domain, type: 'blocked' });
+    console.log('API result:', JSON.stringify(result, null, 2));
     document.getElementById('new-blocked-domain').value = '';
     
     if (result.controls) {
+        console.log('Controls received:', JSON.stringify(result.controls, null, 2));
         updateDomainsList(result.controls.domains || []);
     } else {
         await loadLimits();
@@ -250,10 +253,13 @@ async function addAllowedDomain() {
     const domain = document.getElementById('new-allowed-domain').value.trim();
     if (!domain) return;
     
+    console.log('Adding allowed domain:', domain);
     const result = await apiPost('/api/limits/domains', { domain, type: 'allowed' });
+    console.log('API result:', JSON.stringify(result, null, 2));
     document.getElementById('new-allowed-domain').value = '';
     
     if (result.controls) {
+        console.log('Controls received:', JSON.stringify(result.controls, null, 2));
         updateDomainsList(result.controls.domains || []);
     } else {
         await loadLimits();
