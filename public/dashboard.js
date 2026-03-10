@@ -218,17 +218,30 @@ async function addDomain() {
     const domain = document.getElementById('new-domain').value.trim();
     if (!domain) return;
     
-    await apiPost('/api/limits/domains', { domain });
+    const result = await apiPost('/api/limits/domains', { domain });
     document.getElementById('new-domain').value = '';
-    await loadLimits();
+    
+    // Use returned controls to ensure correct mode
+    if (result.controls) {
+        updateDomainsList(result.controls.domains || [], result.controls.mode || 'blacklist');
+    } else {
+        await loadLimits();
+    }
 }
 
 async function removeDomain(domain) {
     try {
         const response = await fetch(`${API_BASE}/api/limits/domains/${encodeURIComponent(domain)}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Failed to remove domain');
+        const result = await response.json();
         showNotification('Domain removed');
-        await loadLimits();
+        
+        // Use returned controls to ensure correct mode
+        if (result.controls) {
+            updateDomainsList(result.controls.domains || [], result.controls.mode || 'blacklist');
+        } else {
+            await loadLimits();
+        }
     } catch (error) {
         showNotification('Error removing domain', 'error');
     }

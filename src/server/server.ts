@@ -134,12 +134,13 @@ export class PaymentSkillServer {
       if (domain) {
         configManager.addDomain(domain);
       }
-      res.json({ success: true, message: 'Domain controls updated' });
+      // Return updated controls so frontend has correct mode
+      res.json({ success: true, message: 'Domain controls updated', controls: configManager.getDomainControls() });
     });
 
     this.app.delete('/api/limits/domains/:domain', (req, res) => {
       configManager.removeDomain(req.params.domain);
-      res.json({ success: true, message: 'Domain removed' });
+      res.json({ success: true, message: 'Domain removed', controls: configManager.getDomainControls() });
     });
 
     // Time Window
