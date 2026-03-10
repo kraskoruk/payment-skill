@@ -181,36 +181,19 @@ function updateDomainsList(domainList) {
     const container = document.getElementById('domains-list');
     if (!container) return;
     
-    console.log('Domains received:', JSON.stringify(domains, null, 2));
-    
     if (domains.length === 0) {
-        container.innerHTML = '<span style="color: var(--text-secondary); font-size: 10px;">No domains configured</span>';
+        container.innerHTML = '<span style="color: var(--text-secondary); font-size: 10px;">No blocked domains</span>';
         return;
     }
     
+    // All domains in the list are BLOCKED (RED)
     container.innerHTML = domains.map(d => {
-        // Handle both old format (string) and new format (object)
         const domainName = typeof d === 'string' ? d : d.domain;
-        const domainType = typeof d === 'string' ? 'blocked' : (d.type || 'blocked');
-        
-        // Color based on individual domain type
-        let bgColor, textColor, borderColor;
-        if (domainType === 'allowed') {
-            // Allowed domain = GREEN
-            bgColor = 'rgba(34, 197, 94, 0.2)';
-            textColor = '#22c55e';
-            borderColor = '#22c55e';
-        } else {
-            // Blocked domain = RED
-            bgColor = 'rgba(220, 38, 38, 0.2)';
-            textColor = '#ef4444';
-            borderColor = '#dc2626';
-        }
         
         return `
-        <span style="background: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; padding: 3px 8px; border-radius: 3px; font-size: 10px; display: inline-flex; align-items: center; gap: 5px; margin: 2px;">
+        <span style="background: rgba(220, 38, 38, 0.2); color: #ef4444; border: 1px solid #dc2626; padding: 3px 8px; border-radius: 3px; font-size: 10px; display: inline-flex; align-items: center; gap: 5px; margin: 2px;">
             ${domainName}
-            <button onclick="removeDomain('${domainName}')" style="background: none; border: none; color: ${textColor}; cursor: pointer; font-size: 12px; padding: 0;">×</button>
+            <button onclick="removeDomain('${domainName}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; padding: 0;">×</button>
         </span>
     `}).join('');
 }
@@ -235,31 +218,11 @@ async function removeDomain(domain) {
 async function addBlockedDomain() {
     const domain = document.getElementById('new-blocked-domain').value.trim();
     if (!domain) return;
-    
-    console.log('Adding blocked domain:', domain);
-    const result = await apiPost('/api/limits/domains', { domain, type: 'blocked' });
-    console.log('API result:', JSON.stringify(result, null, 2));
-    document.getElementById('new-blocked-domain').value = '';
-    
-    if (result.controls) {
-        console.log('Controls received:', JSON.stringify(result.controls, null, 2));
-        updateDomainsList(result.controls.domains || []);
-    } else {
-        await loadLimits();
-    }
-}
 
-async function addAllowedDomain() {
-    const domain = document.getElementById('new-allowed-domain').value.trim();
-    if (!domain) return;
-    
-    console.log('Adding allowed domain:', domain);
-    const result = await apiPost('/api/limits/domains', { domain, type: 'allowed' });
-    console.log('API result:', JSON.stringify(result, null, 2));
-    document.getElementById('new-allowed-domain').value = '';
-    
+    const result = await apiPost('/api/limits/domains', { domain, type: 'blocked' });
+    document.getElementById('new-blocked-domain').value = '';
+
     if (result.controls) {
-        console.log('Controls received:', JSON.stringify(result.controls, null, 2));
         updateDomainsList(result.controls.domains || []);
     } else {
         await loadLimits();
