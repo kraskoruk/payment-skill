@@ -39,7 +39,7 @@ export class WiseClient {
 
   // Balance Management
   async getBalances(profileId: string) {
-    const response = await this.client.get(`/v4/profiles/${profileId}/balances`);
+    const response = await this.client.get(`/v4/profiles/${profileId}/balances?types=STANDARD`);
     return response.data;
   }
 
@@ -113,13 +113,14 @@ export class WiseClient {
     profileId: string,
     quoteId: string,
     targetAccountId: string,
-    reference?: string
+    reference?: string,
+    customerTransactionId?: string
   ) {
     const body: any = {
       targetAccount: targetAccountId,
-      quoteUuid: quoteId
-    };
-    
+      quoteUuid: quoteId,
+      customerTransactionId: customerTransactionId || `txn-${Date.now()}`
+    };    
     if (reference) {
       body.reference = reference;
     }

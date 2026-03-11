@@ -15,6 +15,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const path_1 = __importDefault(require("path"));
 const config_1 = require("../core/config");
 const transaction_1 = require("../core/transaction");
+const wise_profile_1 = require("../api/wise-profile");
 class PaymentSkillServer {
     constructor(port = 8080) {
         this.app = (0, express_1.default)();
@@ -59,18 +60,38 @@ class PaymentSkillServer {
             res.json(safeConfig);
         });
         // Save provider API key
-        this.app.post('/api/providers', (req, res) => {
+        this.app.post('/api/providers', async (req, res) => {
             const { name, apiKey, environment = 'production' } = req.body;
             if (!name || !apiKey) {
                 res.status(400).json({ success: false, message: 'Provider name and API key required' });
                 return;
             }
-            config_1.configManager.setProvider(name, {
-                name,
-                apiKey,
-                environment
-            });
-            res.json({ success: true, message: `${name} API key saved` });
+            try {
+                // Save initial config
+                config_1.configManager.setProvider(name, {
+                    name,
+                    apiKey,
+                    environment
+                });
+                // Auto-fetch profile ID for Wise
+                let profileId = null;
+                if (name === 'wise') {
+                    try {
+                        profileId = await (0, wise_profile_1.fetchAndSaveWiseProfile)(name, apiKey, environment);
+                    }
+                    catch (profileError) {
+                        console.log('Could not auto-fetch profile:', profileError.message);
+                    }
+                }
+                res.json({
+                    success: true,
+                    message: `${name} API key saved`,
+                    profileId: profileId
+                });
+            }
+            catch (error) {
+                res.status(500).json({ success: false, message: error.message });
+            }
         });
         // Get transactions
         this.app.get('/api/transactions', (req, res) => {

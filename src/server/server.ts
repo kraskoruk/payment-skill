@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import path from 'path';
 import { configManager } from '../core/config';
 import { transactionManager } from '../core/transaction';
+import { fetchAndSaveWiseProfile } from '../api/wise-profile';
 
 export class PaymentSkillServer {
   private app: express.Application;
@@ -62,21 +63,42 @@ export class PaymentSkillServer {
     });
 
     // Save provider API key
-    this.app.post('/api/providers', (req, res) => {
-      const { name, apiKey, environment = 'production' } = req.body;
-      if (!name || !apiKey) {
-        res.status(400).json({ success: false, message: 'Provider name and API key required' });
-        return;
-      }
-      
-      configManager.setProvider(name, {
-        name,
-        apiKey,
-        environment
-      });
-      
-      res.json({ success: true, message: `${name} API key saved` });
+    this.app.post('/api/providers', async (req, res) => {
+  const { name, apiKey, environment = 'production' } = req.body;
+  
+  if (!name || !apiKey) {
+    res.status(400).json({ success: false, message: 'Provider name and API key required' });
+    return;
+  }
+  
+  try {
+    // Save initial config
+    configManager.setProvider(name, {
+      name,
+      apiKey,
+      environment
     });
+    
+    // Auto-fetch profile ID for Wise
+    let profileId = null;
+    if (name === 'wise') {
+      try {
+        profileId = await fetchAndSaveWiseProfile(name, apiKey, environment);
+      } catch (profileError) {
+        console.log('Could not auto-fetch profile:', (profileError as any).message);
+      }
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `${name} API key saved`,
+      profileId: profileId
+    });
+    
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
     // Get transactions
     this.app.get('/api/transactions', (req, res) => {

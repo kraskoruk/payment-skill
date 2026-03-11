@@ -28,15 +28,40 @@ configCommands
 configCommands
   .command('set')
   .description('Set configuration value')
-  .argument('<key>', 'Configuration key')
+  .argument('<key>', 'Configuration key (e.g., providers.wise.environment)')
   .argument('<value>', 'Configuration value')
   .action((key, value) => {
+    const setNestedValue = (obj: any, keys: string[], val: any) => {
+      let current = obj;
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (!current[keys[i]]) current[keys[i]] = {};
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = val;
+    };
+    
     try {
       const parsedValue = JSON.parse(value);
-      configManager.setConfig(key, parsedValue);
+      const config = configManager.getConfig();
+      
+      if (key.includes('.')) {
+        const parts = key.split('.');
+        setNestedValue(config, parts, parsedValue);
+        configManager.setConfig(parts[0], config[parts[0]]);
+      } else {
+        configManager.setConfig(key, parsedValue);
+      }
       console.log(chalk.green(`✓ Set ${key} = ${value}`));
     } catch {
-      configManager.setConfig(key, value);
+      const config = configManager.getConfig();
+      
+      if (key.includes('.')) {
+        const parts = key.split('.');
+        setNestedValue(config, parts, value);
+        configManager.setConfig(parts[0], config[parts[0]]);
+      } else {
+        configManager.setConfig(key, value);
+      }
       console.log(chalk.green(`✓ Set ${key} = ${value}`));
     }
   });

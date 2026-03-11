@@ -35,7 +35,7 @@ class WiseClient {
     }
     // Balance Management
     async getBalances(profileId) {
-        const response = await this.client.get(`/v4/profiles/${profileId}/balances`);
+        const response = await this.client.get(`/v4/profiles/${profileId}/balances?types=STANDARD`);
         return response.data;
     }
     async getBalance(profileId, balanceId) {
@@ -85,10 +85,11 @@ class WiseClient {
         return response.data;
     }
     // Transfer Management
-    async createTransfer(profileId, quoteId, targetAccountId, reference) {
+    async createTransfer(profileId, quoteId, targetAccountId, reference, customerTransactionId) {
         const body = {
             targetAccount: targetAccountId,
-            quoteUuid: quoteId
+            quoteUuid: quoteId,
+            customerTransactionId: customerTransactionId || `txn-${Date.now()}`
         };
         if (reference) {
             body.reference = reference;

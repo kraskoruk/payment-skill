@@ -18,7 +18,7 @@ export declare class WiseClient {
     getRecipients(profileId: string): Promise<any>;
     getRecipient(accountId: string): Promise<any>;
     deleteRecipient(accountId: string): Promise<any>;
-    createTransfer(profileId: string, quoteId: string, targetAccountId: string, reference?: string): Promise<any>;
+    createTransfer(profileId: string, quoteId: string, targetAccountId: string, reference?: string, customerTransactionId?: string): Promise<any>;
     getTransfer(transferId: string): Promise<any>;
     cancelTransfer(transferId: string): Promise<any>;
     getTransfers(profileId: string, status?: string, limit?: number): Promise<any>;
