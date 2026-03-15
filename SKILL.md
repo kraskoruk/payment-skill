@@ -1,6 +1,6 @@
 ---
 name: payment-skill
-description: Self-hosted payment orchestration for OpenClaw - pay from your bank account to merchants via Wise/Bunq APIs with template-based configurable flows, emergency stop, and comprehensive CLI
+description: Self-hosted payment skill for OpenClaw - pay from your bank account to merchants via Wise/Bunq APIs with template-based configurable flows, emergency stop, and comprehensive CLI
 metadata:
   {
     "openclaw":
@@ -23,7 +23,7 @@ metadata:
 
 # Payment Skill
 
-Self-hosted payment orchestration app for OpenClaw agents. Pay from your bank account to merchants who accept payments through APIs.
+Self-hosted payment skill for OpenClaw agents. Pay from your bank account to merchants who accept payments through APIs.
 
 ## Features
 

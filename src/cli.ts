@@ -24,7 +24,7 @@ const program = new Command();
 
 program
   .name('payment-skill')
-  .description('Self-hosted payment orchestration for OpenClaw')
+  .description('Self-hosted payment skill for OpenClaw')
   .version('1.0.0')
   .option('-v, --verbose', 'Enable verbose output')
   .option('-j, --json', 'Output in JSON format')

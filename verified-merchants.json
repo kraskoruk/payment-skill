@@ -38,8 +38,8 @@
     },
     {
       "id": "clickclack-market",
-      "name": "ClickClack Market",
-      "domains": ["clickclack.market"],
+      "name": "ManyClaws",
+      "domains": ["manyclaws.store"],
       "categories": ["marketplace", "shopping"],
       "verified": true,
       "riskLevel": "low",

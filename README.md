@@ -1,6 +1,6 @@
 # Payment Skill
 
-Self-hosted payment orchestration app for OpenClaw - pay from your bank account to merchants via API.
+Self-hosted payment skill for OpenClaw - pay from your bank account to merchants via API.
 
 ## Overview
 
