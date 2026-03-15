@@ -17,7 +17,7 @@ export class PaymentSkillServer {
   private app: express.Application;
   private port: number;
 
-  constructor(port: number = 8080) {
+  constructor(port: number = 18790) {
     this.app = express();
     this.port = port;
     this.setupMiddleware();

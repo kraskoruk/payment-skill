@@ -51,7 +51,7 @@ const config_1 = require("../core/config");
 const transaction_1 = require("../core/transaction");
 const wise_profile_1 = require("../api/wise-profile");
 class PaymentSkillServer {
-    constructor(port = 8080) {
+    constructor(port = 18790) {
         this.app = (0, express_1.default)();
         this.port = port;
         this.setupMiddleware();
