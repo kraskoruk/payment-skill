@@ -366,7 +366,7 @@ The web dashboard provides a visual interface for all operations:
 payment-skill serve
 
 # Open in browser
-open http://localhost:8080
+open http://localhost:18790/dashboard
 ```
 
 Features:
