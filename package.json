@@ -1,6 +1,6 @@
 {
   "name": "payment-skill",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "Self-hosted payment skill for OpenClaw - pay from your bank account to merchants via API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
